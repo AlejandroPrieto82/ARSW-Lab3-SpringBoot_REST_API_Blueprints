@@ -7,8 +7,8 @@
 # Parte 1
 
 ## Prueba de funcionamiento English
-![Funcionamiento Ingles](image-1.1.png)
+![Funcionamiento Ingles](/img/Image-1.1.png)
 
 ## Prueba de funcionamiento Espanol
-![Funcionamiento Espanol](image-1.2.png)
+![Funcionamiento Espanol](/img/Image-1.2.png)
 ---
