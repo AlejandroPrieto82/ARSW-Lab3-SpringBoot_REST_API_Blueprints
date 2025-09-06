@@ -89,6 +89,7 @@ Al cambiar la anotación entre `(A)` o `(B)`, el programa retorna los planos pro
 
 ---
 # Obtener el java doc
+Ejecutar el siguiente comando dentro de la carpeta ***1.Ejercicio Previo*** o ***2. Ejercicio Rest*** para obtener el java doc correspondiente
 ```bash
 mvn javadoc:javadoc
 ```
