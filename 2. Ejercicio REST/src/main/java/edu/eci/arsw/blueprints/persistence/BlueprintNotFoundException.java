@@ -1,22 +1,27 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package edu.eci.arsw.blueprints.persistence;
 
 /**
- *
- * @author hcadavid
+ * Excepción lanzada cuando no se encuentra un plano
+ * en el sistema de persistencia.
  */
-public class BlueprintNotFoundException extends Exception{
+public class BlueprintNotFoundException extends Exception {
 
+    /**
+     * Crea una nueva excepción con un mensaje descriptivo.
+     *
+     * @param message mensaje que describe la causa de la excepción
+     */
     public BlueprintNotFoundException(String message) {
         super(message);
     }
 
+    /**
+     * Crea una nueva excepción con un mensaje descriptivo y una causa anidada.
+     *
+     * @param message mensaje que describe la causa de la excepción
+     * @param cause excepción original que causó el error
+     */
     public BlueprintNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }
-    
 }

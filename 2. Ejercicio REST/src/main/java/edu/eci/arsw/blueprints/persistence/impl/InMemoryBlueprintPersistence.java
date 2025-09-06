@@ -1,49 +1,91 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package edu.eci.arsw.blueprints.persistence.impl;
 
 import edu.eci.arsw.blueprints.model.Blueprint;
-import edu.eci.arsw.blueprints.model.Point;
 import edu.eci.arsw.blueprints.persistence.BlueprintNotFoundException;
 import edu.eci.arsw.blueprints.persistence.BlueprintPersistenceException;
 import edu.eci.arsw.blueprints.persistence.BlueprintsPersistence;
-import java.util.HashMap;
+import org.springframework.stereotype.Component;
+
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
+ * Implementación en memoria del sistema de persistencia de planos.
  *
- * @author hcadavid
+ * Esta clase utiliza un {@link ConcurrentHashMap} para almacenar los planos
+ * en memoria, identificados de manera única por una tupla {@link Tuple}
+ * compuesta por autor y nombre del plano.
+ *
+ * Es un componente de Spring gestionado mediante anotaciones (@Component).
  */
-public class InMemoryBlueprintPersistence implements BlueprintsPersistence{
+@Component
+public class InMemoryBlueprintPersistence implements BlueprintsPersistence {
 
-    private final Map<Tuple<String,String>,Blueprint> blueprints=new HashMap<>();
+    /** Almacén de planos, indexados por (autor, nombre). */
+    private final Map<Tuple<String, String>, Blueprint> blueprints;
 
+    /**
+     * Crea una nueva instancia de persistencia en memoria,
+     * inicializando la estructura de almacenamiento.
+     */
     public InMemoryBlueprintPersistence() {
-        //load stub data
-        Point[] pts=new Point[]{new Point(140, 140),new Point(115, 115)};
-        Blueprint bp=new Blueprint("_authorname_", "_bpname_ ",pts);
-        blueprints.put(new Tuple<>(bp.getAuthor(),bp.getName()), bp);
-        
-    }    
-    
+        this.blueprints = new ConcurrentHashMap<>();
+    }
+
+    /**
+     * Guarda un nuevo plano en el sistema de persistencia.
+     *
+     * @param bp el plano a guardar
+     * @throws BlueprintPersistenceException si el plano ya existe en memoria
+     */
     @Override
     public void saveBlueprint(Blueprint bp) throws BlueprintPersistenceException {
-        if (blueprints.containsKey(new Tuple<>(bp.getAuthor(),bp.getName()))){
-            throw new BlueprintPersistenceException("The given blueprint already exists: "+bp);
+        Tuple<String, String> key = new Tuple<>(bp.getAuthor(), bp.getName());
+        if (blueprints.containsKey(key)) {
+            throw new BlueprintPersistenceException("The given blueprint already exists: " + bp);
         }
-        else{
-            blueprints.put(new Tuple<>(bp.getAuthor(),bp.getName()), bp);
-        }        
+        blueprints.put(key, bp);
     }
 
+    /**
+     * Recupera un plano específico a partir de su autor y nombre.
+     *
+     * @param author autor del plano
+     * @param bprintname nombre del plano
+     * @return el plano correspondiente
+     * @throws BlueprintNotFoundException si no existe un plano con el autor y nombre indicados
+     */
     @Override
     public Blueprint getBlueprint(String author, String bprintname) throws BlueprintNotFoundException {
-        return blueprints.get(new Tuple<>(author, bprintname));
+        Blueprint bp = blueprints.get(new Tuple<>(author, bprintname));
+        if (bp == null) {
+            throw new BlueprintNotFoundException("Blueprint not found: " + author + ", " + bprintname);
+        }
+        return bp;
     }
 
-    
-    
+    /**
+     * Recupera todos los planos de un autor específico.
+     *
+     * @param author autor cuyos planos se quieren consultar
+     * @return conjunto de planos pertenecientes al autor
+     */
+    @Override
+    public Set<Blueprint> getBlueprintsByAuthor(String author) {
+        return blueprints.values().stream()
+                .filter(bp -> bp.getAuthor().equals(author))
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Recupera todos los planos almacenados en memoria.
+     *
+     * @return conjunto de todos los planos registrados
+     */
+    @Override
+    public Set<Blueprint> getAllBlueprints() {
+        return Set.copyOf(blueprints.values());
+    }
 }
